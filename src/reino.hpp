@@ -47,3 +47,24 @@ private:
     string ruta_rama(Persona* p) const;
     Persona* elegir_sucesor_desde_lista(const list<Persona*>& candidatos) const;
 
+public:
+    Reino();
+    ~Reino();
+
+    bool cargar_csv(const string& ruta);
+    bool guardar_csv(const string& ruta);
+
+    Persona* buscar_por_id(int id) const;
+
+    void actualizar_rey_actual();
+    Persona* obtener_rey_actual() const;
+    void asignar_nuevo_rey_por_muerte_o_edad();
+    void mostrar_sucesion() const;
+    bool editar_persona(int id, const string& nombre, const string& apellido,
+                        char genero, int edad, bool esta_muerto, bool fue_rey, bool es_rey);
+    void marcar_muerto(int id);
+
+    Persona* obtener_ancestro() const { return ancestro; }
+};
+
+#endif
