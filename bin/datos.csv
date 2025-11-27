@@ -1,1 +1,16 @@
-
+id,nombre,apellido,genero,edad,id_padre,esta_muerto,fue_rey,es_rey
+1,Aldric,Valemar,1,80,0,1,1,0
+2,Edric,Valemar,1,45,1,0,0,1
+3,Rowan,Valemar,1,42,1,0,0,0
+4,Alistair,Valemar,1,20,2,0,0,0
+5,Eleanor,Valemar,0,18,2,0,0,0
+6,Theon,Valemar,1,16,2,0,0,0
+7,Kaela,Valemar,0,14,2,0,0,0
+8,Beric,Valemar,1,17,3,0,0,0
+9,Mira,Valemar,0,15,3,0,0,0
+10,Seraphina,Valemar,0,38,3,0,0,0
+11,Gareth,Stormrider,1,60,1,1,0,0
+12,Lyria,Stormrider,0,35,11,0,0,0
+13,Draven,Stormrider,1,32,11,0,0,0
+14,Calen,Stormrider,1,10,13,0,0,0
+15,Selene,Stormrider,0,8,13,0,0,0
