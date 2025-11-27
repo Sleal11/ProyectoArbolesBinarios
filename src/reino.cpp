@@ -107,3 +107,74 @@ void Reino::construir_arbol() {
         }
     }
 
+    for (auto &kv : personas) {
+        Persona* p = kv.second;
+        if (p->id_padre != 0) {
+            auto it = personas.find(p->id_padre);
+            if (it != personas.end()) {
+                Persona* padre = it->second;
+                p->padre = padre;
+                if (!padre->primogenito) padre->primogenito = p;
+                else if (!padre->segundo) padre->segundo = p;
+                else {
+                    cerr << "Advertencia: padre " << padre->id << " ya tiene 2 hijos. Ignorando id " << p->id << "\n";
+                }
+            } else {
+                cerr << "Advertencia: padre id " << p->id_padre << " no encontrado para id " << p->id << '\n';
+            }
+        }
+    }
+}
+
+Persona* Reino::buscar_por_id(int id) const {
+    auto it = personas.find(id);
+    if (it == personas.end()) return nullptr;
+    return it->second;
+}
+
+void Reino::recolectar_primogenitura(Persona* nodo, list<Persona*>& salida) const {
+    if (!nodo) return;
+    salida.push_back(nodo);
+    recolectar_primogenitura(nodo->primogenito, salida);
+    recolectar_primogenitura(nodo->segundo, salida);
+}
+
+string Reino::ruta_rama(Persona* p) const {
+    if (!p) return "";
+    string ruta = "";
+    Persona* cur = p;
+    while (cur->padre) {
+        Persona* par = cur->padre;
+        if (par->primogenito == cur) ruta.push_back('L');
+        else if (par->segundo == cur) ruta.push_back('R');
+        else ruta.push_back('X');
+        cur = par;
+    }
+    reverse(ruta.begin(), ruta.end());
+    return ruta;
+}
+
+Persona* Reino::elegir_sucesor_desde_lista(const list<Persona*>& candidatos) const {
+    for (Persona* c : candidatos) {
+        if (!c) continue;
+        if (!c->esta_muerto && c->genero == 'H' && c->edad < 70) return c;
+    }
+    list<Persona*> fems;
+    for (Persona* c : candidatos) {
+        if (!c) continue;
+        if (!c->esta_muerto && c->genero == 'M' && c->edad > 15) fems.push_back(c);
+    }
+    if (fems.empty()) return nullptr;
+    int min_edad = 1000;
+    for (Persona* f : fems) if (f->edad < min_edad) min_edad = f->edad;
+    list<Persona*> empate;
+    for (Persona* f : fems) if (f->edad == min_edad) empate.push_back(f);
+    if (empate.size() == 1) return empate.front();
+    Persona* mejor = nullptr;
+    string mejor_ruta;
+    for (Persona* f : empate) {
+        string r = ruta_rama(f);
+        if (!mejor || r < mejor_ruta) { mejor = f; mejor_ruta = r; }
+    }
+    return mejor;
+}
