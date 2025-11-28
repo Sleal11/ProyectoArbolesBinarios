@@ -178,3 +178,108 @@ Persona* Reino::elegir_sucesor_desde_lista(const list<Persona*>& candidatos) con
     }
     return mejor;
 }
+
+void Reino::actualizar_rey_actual() {
+    rey_actual = nullptr;
+    for (auto &kv : personas) {
+        if (kv.second->es_rey) { rey_actual = kv.second; return; }
+    }
+    if (!rey_actual && ancestro) {
+        list<Persona*> todos;
+        recolectar_primogenitura(ancestro, todos);
+        Persona* candidato = elegir_sucesor_desde_lista(todos);
+        if (candidato) {
+            candidato->es_rey = true;
+            candidato->fue_rey = true;
+            rey_actual = candidato;
+        }
+    }
+}
+
+Persona* Reino::obtener_rey_actual() const { return rey_actual; }
+
+void Reino::asignar_nuevo_rey_por_muerte_o_edad() {
+    if (!ancestro) return;
+    if (!rey_actual) actualizar_rey_actual();
+    if (!rey_actual) return;
+
+    if (rey_actual->esta_muerto || rey_actual->edad >= 70) {
+        if (rey_actual) rey_actual->es_rey = false;
+
+        list<Persona*> todos;
+        recolectar_primogenitura(ancestro, todos);
+        Persona* sucesor = elegir_sucesor_desde_lista(todos);
+        if (sucesor) {
+            sucesor->es_rey = true;
+            sucesor->fue_rey = true;
+            rey_actual = sucesor;
+            cout << "Nuevo rey asignado: " << sucesor->nombre_completo() << "\n";
+        } else {
+            cout << "No se encontró sucesor elegible.\n";
+        }
+    }
+}
+
+void Reino::mostrar_sucesion() const {
+    if (!ancestro) { cout << "Arbol vacío.\n"; return; }
+
+    list<Persona*> todos;
+    recolectar_primogenitura(ancestro, todos);
+
+    list<Persona*> varones;
+    for (Persona* p : todos) {
+        if (!p) continue;
+        if (!p->esta_muerto && p->genero == 'H' && p->edad < 70) varones.push_back(p);
+    }
+    cout << "Linea de sucesion actual (solo vivos y aptos):\n";
+    if (rey_actual && !rey_actual->esta_muerto && rey_actual->edad < 70) {
+        cout << "1) " << rey_actual->nombre_completo() << " [REY]\n";
+    } else {
+        cout << "1) (sin rey actual apto)\n";
+    }
+
+    int idx = 2;
+    if (!varones.empty()) {
+        for (Persona* p : todos) {
+            if (!p) continue;
+            if (p == rey_actual) continue;
+            if (!p->esta_muerto && p->genero == 'H' && p->edad < 70) {
+                cout << idx << ") " << p->nombre_completo() << " (edad " << p->edad << ")\n";
+                idx++;
+            }
+        }
+    } else {
+        list<Persona*> fems;
+        for (Persona* p : todos) {
+            if (!p) continue;
+            if (!p->esta_muerto && p->genero == 'M' && p->edad > 15) fems.push_back(p);
+        }
+        if (fems.empty()) {
+            cout << "(No hay candidatos aptos)\n";
+            return;
+        }
+        int n = 0;
+        for (auto it = fems.begin(); it != fems.end(); ++it) ++n;
+        Persona** arr = new Persona*[n];
+        int i = 0;
+        for (Persona* p : fems) arr[i++] = p;
+        for (int a = 0; a < n-1; ++a)
+            for (int b = 0; b < n-1-a; ++b) {
+                Persona* A = arr[b];
+                Persona* B = arr[b+1];
+                if (A->edad > B->edad) {
+                    Persona* tmp = arr[b]; arr[b] = arr[b+1]; arr[b+1] = tmp;
+                } else if (A->edad == B->edad) {
+                    if (ruta_rama(A) > ruta_rama(B)) {
+                        Persona* tmp = arr[b]; arr[b] = arr[b+1]; arr[b+1] = tmp;
+                    }
+                }
+            }
+        for (int k = 0; k < n; ++k) {
+            if (arr[k] == rey_actual) continue;
+            cout << idx << ") " << arr[k]->nombre_completo() << " (edad " << arr[k]->edad << ")\n";
+            idx++;
+        }
+        delete [] arr;
+    }
+}
