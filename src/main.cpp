@@ -72,3 +72,35 @@ int main() {
             cout << "Es rey? 0=No 1=Si: ";
             cin >> es_rey;
             cin.ignore();
+            
+            if (reino.editar_persona(id, nombre, apellido, genero, edad, esta_muerto, fue_rey, es_rey))
+                cout << "Persona editada correctamente.\n";
+            else
+                cout << "No se encontro la persona con ID " << id << "\n";
+        }
+        else if (opcion == 4) {
+            Persona* ancestro = reino.obtener_ancestro();
+            if (!ancestro) {
+                cout << "No hay arbol genealogico.\n";
+            } else {
+                cout << "Arbol genealogico completo:\n";
+                mostrar_arbol(ancestro);
+            }
+        }
+        else if (opcion == 5) {
+            if (reino.guardar_csv("bin/datos.csv"))
+                cout << "Cambios guardados correctamente en bin/datos.csv\n";
+            else
+                cout << "Error al guardar CSV\n";
+        }
+        else if (opcion == 6) {
+            cout << "Saliendo...\n";
+            break;
+        }
+        else {
+            cout << "Opcion invalida.\n";
+        }
+    }
+
+    return 0;
+}
