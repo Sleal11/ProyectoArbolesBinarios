@@ -283,3 +283,32 @@ void Reino::mostrar_sucesion() const {
         delete [] arr;
     }
 }
+//sigue
+bool Reino::editar_persona(int id, const string& nombre, const string& apellido,
+                           char genero, int edad, bool esta_muerto, bool fue_rey, bool es_rey) {
+    Persona* p = buscar_por_id(id);
+    if (!p) return false;
+    p->nombre = nombre;
+    p->apellido = apellido;
+    p->genero = genero;
+    p->edad = edad;
+    p->esta_muerto = esta_muerto;
+    p->fue_rey = fue_rey;
+    if (es_rey) {
+        for (auto &kv : personas) kv.second->es_rey = false;
+    }
+    p->es_rey = es_rey;
+    actualizar_rey_actual();
+    return true;
+}
+
+void Reino::marcar_muerto(int id) {
+    Persona* p = buscar_por_id(id);
+    if (!p) { cout << "id no encontrado\n"; return; }
+    p->esta_muerto = true;
+    if (p->es_rey) {
+        p->es_rey = false;
+        cout << p->nombre_completo() << " marcado como muerto. Buscando sucesor...\n";
+        asignar_nuevo_rey_por_muerte_o_edad();
+    }
+}
